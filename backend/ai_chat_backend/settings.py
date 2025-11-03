@@ -38,6 +38,8 @@ INSTALLED_APPS = [
     "django.contrib.sessions",
     "django.contrib.messages",
     "django.contrib.staticfiles",
+    "accounts",
+    "chat",
 ]
 
 MIDDLEWARE = [
@@ -84,6 +86,7 @@ DATABASES = {
         "PORT": 5432,
     }
 }
+AUTH_USER_MODEL = "accounts.CustomUser"
 
 
 # Password validation

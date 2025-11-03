@@ -1,0 +1,28 @@
+@Django_backend_host = http://localhost:8000
+
+@Django_backend_auth = http://localhost:8000/api/auth
+
+GET {{Django_backend_auth}}/profile
+Accept: application/json
+
+###
+POST {{Django_backend_auth}}/register/
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "email": "john@example.com",
+  "password": "MySecurePass123",
+  "password2": "MySecurePass123",
+  "bio": "Full-stack developer based in Berlin"
+}
+
+###
+POST {{Django_backend_auth}}/login/
+Content-Type: application/json
+
+{
+  "username": "johndoe",
+  "password": "MySecurePass123"
+
+}
