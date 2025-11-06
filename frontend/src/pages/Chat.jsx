@@ -1,5 +1,5 @@
 // src/pages/ChatPage.jsx
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { Bot, Plus, Menu, Send, User, MessageSquare } from "lucide-react";
 
 // Mock data for chat history
@@ -15,78 +15,166 @@ const mockConversation = [
   {
     id: 1,
     role: "user",
-    text: "Can you explain the main difference between a neural network and a regular algorithm?",
+    content:
+      "Can you explain the main difference between a neural network and a regular algorithm?",
   },
   {
     id: 2,
     role: "ai",
-    text: "That's a great question! The core difference lies in how they learn. A **regular algorithm** is a set of explicit instructions designed by a programmer to solve a specific problem. It follows the same path every time. A **neural network**, on the other hand, is a machine learning model inspired by the human brain. It's designed to learn patterns and relationships directly from data (training) without being explicitly programmed for the task. It adapts and improves its performance over time.",
+    content:
+      "That's a great question! The core difference lies in how they learn. A **regular algorithm** is a set of explicit instructions designed by a programmer to solve a specific problem. It follows the same path every time. A **neural network**, on the other hand, is a machine learning model inspired by the human brain. It's designed to learn patterns and relationships directly from data (training) without being explicitly programmed for the task. It adapts and improves its performance over time.",
   },
   {
     id: 3,
     role: "user",
-    text: "What about a practical example?",
+    content: "What about a practical example?",
   },
   {
     id: 4,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 5,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 6,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 7,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 8,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 9,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 10,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 11,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 12,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 13,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
   {
     id: 14,
     role: "ai",
-    text: "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
+    content:
+      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
   },
 ];
 
 const ChatPage = () => {
   // Simple state to simulate which chat is currently active
-  const activeChatId = 2; // For 'Best Tailwind CSS Practices'
+  // const activeChatId = 2; // For 'Best Tailwind CSS Practices'
+  const [userMessage, setUserMessage] = useState("");
+  const [activeChat, setActiveChat] = useState(null);
+  const [chatMessages, setChatMessages] = useState(mockConversation);
+  const [chatSessions, setChatSessions] = useState(mockChatHistory);
+
+  const handleChat = async () => {
+    console.log("Chat sent");
+    const authToken = localStorage.getItem("access_token");
+    const sendMessage = await fetch("http://localhost:8000/api/chat/message/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ chat_id: activeChat, content: userMessage }),
+    });
+    if (sendMessage.ok) {
+      const data = await sendMessage.json();
+      console.log(data);
+      setUserMessage("");
+      setChatMessages((prev) => [...prev, ...data.data]);
+    } else {
+      alert("unable to send message");
+      console.error("Error sending message");
+    }
+  };
+
+  const fetchChatSessions = async () => {
+    const authToken = localStorage.getItem("access_token");
+    const response = await fetch("http://localhost:8000/api/chat/session", {
+      method: "GET",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      console.log(data);
+      setActiveChat(data.data?.[0]?.id || null);
+      setChatSessions(data.data || []);
+    } else {
+      console.error("Error fetching chat sessions");
+    }
+  };
+
+  const fetchChatMessages = async (sessionId) => {
+    const authToken = localStorage.getItem("access_token");
+    const response = await fetch(
+      `http://localhost:8000/api/chat/message/?session=${sessionId}`,
+      {
+        method: "GET",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+      }
+    );
+    if (response.ok) {
+      const data = await response.json();
+      setChatMessages(data.data || []);
+      console.log("chat data from session is ", data);
+    } else {
+      console.error("Error fetching chat messages");
+    }
+  };
+
+  const handleSessionClick = async () => {
+    fetchChatMessages(activeChat);
+  };
+
+  useEffect(() => {
+    fetchChatSessions();
+    // fetchChatMessages(activeChat);
+  }, []);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -108,22 +196,22 @@ const ChatPage = () => {
         </button>
 
         {/* Chat History */}
-        <nav className="flex-grow overflow-y-auto space-y-2">
+        <nav className="grow overflow-y-auto space-y-2">
           <p className="text-xs text-gray-400 uppercase mb-2">History</p>
-          {mockChatHistory.map((chat) => (
-            <a
+          {chatSessions.map((chat) => (
+            <button
               key={chat.id}
-              href={`/chat/${chat.id}`} // Example link
+              onClick={handleSessionClick}
               className={`flex items-center px-3 py-2 text-sm rounded-lg truncate transition duration-150 ${
-                chat.id === activeChatId
+                chat.id === activeChat
                   ? "bg-gray-800 text-indigo-400 font-semibold"
                   : "text-gray-300 hover:bg-gray-800"
               }`}
               title={chat.title}
             >
-              <MessageSquare className="w-4 h-4 mr-2 flex-shrink-0" />
-              {chat.title}
-            </a>
+              <MessageSquare className="w-4 h-4 mr-2 shrink-0" />
+              {chat.stream_name}
+            </button>
           ))}
         </nav>
 
@@ -147,15 +235,14 @@ const ChatPage = () => {
         <header className="flex items-center p-4 md:hidden bg-white shadow-sm">
           <Menu className="w-6 h-6 text-gray-600 mr-3 cursor-pointer" />
           <h2 className="text-lg font-semibold truncate">
-            {mockChatHistory.find((c) => c.id === activeChatId)?.title ||
-              "New Chat"}
+            {chatSessions.find((c) => c.id === activeChat)?.title || "New Chat"}
           </h2>
         </header>
 
         {/* Conversation Thread */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
           <div className="max-w-4xl mx-auto">
-            {mockConversation.map((message) => (
+            {chatMessages.map((message) => (
               <div
                 key={message.id}
                 className={`flex mb-6 ${
@@ -169,7 +256,7 @@ const ChatPage = () => {
                       : "bg-white text-gray-800 rounded-bl-none border border-gray-200"
                   }`}
                 >
-                  <div className="flex-shrink-0 mr-3">
+                  <div className="shrink-0 mr-3">
                     {message.role === "user" ? (
                       <User className="w-6 h-6 bg-indigo-400 p-1 rounded-full" />
                     ) : (
@@ -177,7 +264,7 @@ const ChatPage = () => {
                     )}
                   </div>
                   <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {message.text}
+                    {message.content}
                   </p>
                 </div>
               </div>
@@ -189,12 +276,17 @@ const ChatPage = () => {
         <div className="p-4 sm:p-6 border-t bg-white">
           <div className="max-w-4xl mx-auto flex items-end bg-gray-50 rounded-xl border border-gray-300 shadow-lg">
             <textarea
-              className="flex-grow p-4 resize-none bg-transparent focus:outline-none text-gray-800 placeholder-gray-500 text-base"
+              value={userMessage}
+              onChange={(e) => setUserMessage(e.target.value)}
+              className="grow p-4 resize-none bg-transparent focus:outline-none text-gray-800 placeholder-gray-500 text-base"
               rows="1"
               placeholder="Message ChatAI..."
               style={{ minHeight: "52px" }} // Ensures minimum height even on one row
             />
-            <button className="flex-shrink-0 m-2 p-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition duration-300">
+            <button
+              onClick={handleChat}
+              className="shrink-0 m-2 p-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition duration-300"
+            >
               <Send className="w-5 h-5" />
             </button>
           </div>

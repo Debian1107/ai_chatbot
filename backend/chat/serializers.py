@@ -1,10 +1,10 @@
 from rest_framework import serializers
-from .models import ChatSession, Message
+from .models import ChatSession, Chats
 
 
 class MessageSerializer(serializers.ModelSerializer):
     class Meta:
-        model = Message
+        model = Chats
         fields = "__all__"
         read_only_fields = ["id", "created_at"]
 

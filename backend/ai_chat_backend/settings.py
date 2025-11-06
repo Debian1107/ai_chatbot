@@ -31,7 +31,10 @@ CORS_ALLOWED_ORIGINS = [
     "http://localhost:3000",
     "http://127.0.0.1:3000",
 ]
+# settings.py
 
+# This is necessary if your frontend sends cookies or Authorization headers
+CORS_ALLOW_CREDENTIALS = True
 
 # Application definition
 
@@ -47,14 +50,15 @@ INSTALLED_APPS = [
     "chat",
 ]
 
+# settings.py
+
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
-    "django.middleware.common.CommonMiddleware",
+    "django.contrib.sessions.middleware.SessionMiddleware",
+    "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.middleware.common.CommonMiddleware",
     "django.middleware.csrf.CsrfViewMiddleware",
-    "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
 ]
@@ -77,7 +81,33 @@ TEMPLATES = [
 ]
 
 WSGI_APPLICATION = "ai_chat_backend.wsgi.application"
+# settings.py
 
+REST_FRAMEWORK = {
+    "DEFAULT_AUTHENTICATION_CLASSES": (
+        # Use JWT to handle the Bearer/Token header
+        "rest_framework_simplejwt.authentication.JWTAuthentication",
+        # Optional: Keep Session for browser login
+        "rest_framework.authentication.SessionAuthentication",
+    ),
+    # Ensure only authenticated users can access API views
+    "DEFAULT_PERMISSION_CLASSES": ("rest_framework.permissions.IsAuthenticated",),
+}
+# settings.py
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    # 1. ACCESS TOKEN: Used for every API request. Keep this short (e.g., 15-30 minutes max).
+    # Current Default: 5 minutes
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=150),
+    # 2. REFRESH TOKEN: Used to get a new access token. This defines the overall session length.
+    # Current Default: 1 day
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    # --- Other important settings (optional) ---
+    # The 'Bearer' prefix is standard, but if you used 'Token' in your API calls,
+    # you might need to change this:
+    # "AUTH_HEADER_TYPES": ("Bearer",),
+}
 
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases

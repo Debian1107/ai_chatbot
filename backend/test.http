@@ -26,3 +26,10 @@ Content-Type: application/json
   "password": "MySecurePass123"
 
 }
+###
+
+###
+#  fetch sessions
+GET {{Django_backend_host}}/api/chat/session
+Content-Type: application/json
+Authorization: Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNzYyNDM5ODI1LCJpYXQiOjE3NjI0Mzk1MjUsImp0aSI6IjQ0YWRjOWJhMjM5ODQ3MTRhMWVhMjFhYWE0MmQ3MjQ5IiwidXNlcl9pZCI6IjEifQ.ZBA1ruTpbhxlNSfqlOdL1SPfA5DYOT0eFUeU9MHHvn0

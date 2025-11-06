@@ -2,3 +2,6 @@ Django>=5.0
 psycopg2-binary>=2.9
 djangorestframework
 djangorestframework-simplejwt
+django-cors-headers
+google-genai
+google-generativeai

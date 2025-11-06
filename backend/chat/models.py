@@ -9,7 +9,7 @@ class ChatSession(models.Model):
     status = models.CharField(max_length=50)  # e.g., "active", "completed"
 
     created_at = models.DateTimeField(auto_now_add=True)
-    ended_at = models.DateTimeField()
+    ended_at = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
         return f"Stream for Chat ID {self.chat.id} at {self.timestamp}"
