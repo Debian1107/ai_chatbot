@@ -2,62 +2,82 @@ import os
 import google.generativeai as genai
 from langchain_community.vectorstores import Chroma
 from langchain_community.embeddings import SentenceTransformerEmbeddings
-from langchain.text_splitter import RecursiveCharacterTextSplitter
 
-# Load API key from .env
-# Initialize Gemini
+# from langchain.text_splitter import RecursiveCharacterTextSplitter
+from langchain_text_splitters import RecursiveCharacterTextSplitter
+
+from langchain_core.documents import Document
 
 genai.configure(api_key=os.getenv("GEMINI_API_KEY"))
 
 
-# # Step 1: Load and chunk your document
-# pdf_path = "dino2.pdf"  # <- change to your actual PDF
-# loader = PyPDFLoader(pdf_path)
-documents = "chat text goes here"
+def build_or_load_vectordb(chat_data, persist_dir="chroma_db"):
+    embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
 
-splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
-chunks = splitter.split_documents(documents)
+    # Load existing DB if present
+    if os.path.exists(persist_dir):
+        vectordb = Chroma(
+            persist_directory=persist_dir, embedding_function=embedding_model
+        )
+    else:
+        documents = [
+            Document(
+                page_content=chat.content,
+                metadata={
+                    "user": chat.chat.user.username,
+                    "chat_id": chat.chat.id,
+                    "timestamp": str(chat.created_at),
+                },
+            )
+            for chat in chat_data
+        ]
+        splitter = RecursiveCharacterTextSplitter(chunk_size=800, chunk_overlap=150)
+        chunks = splitter.split_documents(documents)
+        vectordb = Chroma.from_documents(
+            chunks, embedding=embedding_model, persist_directory=persist_dir
+        )
+        vectordb.persist()
 
-# Step 2: Create embeddings and vector store
-embedding_model = SentenceTransformerEmbeddings(model_name="all-MiniLM-L6-v2")
-vectordb = Chroma.from_documents(
-    documents=chunks, embedding=embedding_model, persist_directory="chroma_db"
-)
-retriever = vectordb.as_retriever()
+    return vectordb
 
 
-# Step 3: Ask a question and fetch relevant context
-def ask_gemini(question: str):
-    related_docs = retriever.get_relevant_documents(question, k=9)
+def ragbot(chat_data, question):
+    vectordb = build_or_load_vectordb(chat_data)
+    retriever = vectordb.as_retriever(search_kwargs={"k": 8})
+
+    related_docs = retriever.invoke(question)
     context = "\n\n".join([doc.page_content for doc in related_docs])
-    print("\n\n\n\nthis is the data \n\n\n", context)
+    # print("RAG Context:", context)
 
-    prompt = f"""
-You are a helpful assistant. Use ONLY the context below to answer the question.
-If the answer is not in the context, say "I don't know."
-
-Context:
-{context}
-
-Question:
-{question}
-"""
-
-    # model = genai.GenerativeModel("gemini-pro")
-    model = genai.GenerativeModel(model_name="models/gemini-2.5-flash")
-
-    response = model.generate_content(prompt)
-    return response.text.strip()
+    # model = genai.GenerativeModel("models/gemini-2.5-flash")
+    # response = model.generate_content(prompt, generation_config={"temperature": 0.2})
+    return context  # response.text.strip()
 
 
-# Step 4: Example question loop
-if __name__ == "__main__":
-    print("📘 Gemini Chatbot (Document-Based)")
-    print("Ask anything about your document. Type 'exit' to quit.\n")
+def summarize_chat(chat_data):
+    """Summarize the entire chat history using Gemini."""
+    # Combine chat messages into one long string
+    chat_text = "\n".join(
+        [f"{chat.chat.user.username}: {chat.content}" for chat in chat_data]
+    )
 
-    while True:
-        q = input("❓ Question: ")
-        if q.lower() in ("exit", "quit"):
-            break
-        answer = ask_gemini(q)
-        print("🤖 Answer:", answer)
+    # Split into manageable chunks for large conversations
+    splitter = RecursiveCharacterTextSplitter(chunk_size=2000, chunk_overlap=300)
+    chunks = splitter.split_text(chat_text)
+
+    model = genai.GenerativeModel("models/gemini-2.5-flash")
+
+    summaries = []
+    for i, chunk in enumerate(chunks):
+        prompt = f"Summarize the following part of a chat conversation:\n\n{chunk}"
+        response = model.generate_content(prompt)
+        summaries.append(response.text.strip())
+
+    # Merge all partial summaries into a final overall summary
+    final_prompt = (
+        "Combine the following partial summaries into a coherent overall summary:\n\n"
+        + "\n\n".join(summaries)
+    )
+    final_summary = model.generate_content(final_prompt).text.strip()
+
+    return final_summary

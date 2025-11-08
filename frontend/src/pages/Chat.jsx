@@ -1,7 +1,11 @@
 // src/pages/ChatPage.jsx
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { Bot, Plus, Menu, Send, User, MessageSquare } from "lucide-react";
+import ReactMarkdown from "react-markdown";
+import generateToken from "../utils/token_gen";
+import { useNavigate } from "react-router-dom";
 
+const authToken = localStorage.getItem("access_token");
 // Mock data for chat history
 const mockChatHistory = [
   { id: 1, title: "Quantum Computing Explained" },
@@ -11,124 +15,59 @@ const mockChatHistory = [
 ];
 
 // Mock data for the current conversation
-const mockConversation = [
-  {
-    id: 1,
-    role: "user",
-    content:
-      "Can you explain the main difference between a neural network and a regular algorithm?",
-  },
-  {
-    id: 2,
-    role: "ai",
-    content:
-      "That's a great question! The core difference lies in how they learn. A **regular algorithm** is a set of explicit instructions designed by a programmer to solve a specific problem. It follows the same path every time. A **neural network**, on the other hand, is a machine learning model inspired by the human brain. It's designed to learn patterns and relationships directly from data (training) without being explicitly programmed for the task. It adapts and improves its performance over time.",
-  },
-  {
-    id: 3,
-    role: "user",
-    content: "What about a practical example?",
-  },
-  {
-    id: 4,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 5,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 6,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 7,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 8,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 9,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 10,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 11,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 12,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 13,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-  {
-    id: 14,
-    role: "ai",
-    content:
-      "Certainly. Imagine **sorting a list of numbers (regular algorithm)**: you explicitly tell the computer, 'compare the first two, swap if needed, move to the next pair,' and so on (e.g., Bubble Sort). Now imagine **identifying a cat in a photo (neural network)**: you don't write explicit rules like 'if it has pointy ears and whiskers, it's a cat.' Instead, you show the network thousands of cat and non-cat images, and it figures out the necessary features on its own.",
-  },
-];
+const mockConversation = [];
 
 const ChatPage = () => {
   // Simple state to simulate which chat is currently active
   // const activeChatId = 2; // For 'Best Tailwind CSS Practices'
+  const [loading, setLoading] = useState(false);
   const [userMessage, setUserMessage] = useState("");
   const [activeChat, setActiveChat] = useState(null);
   const [chatMessages, setChatMessages] = useState(mockConversation);
   const [chatSessions, setChatSessions] = useState(mockChatHistory);
+  const [isChatEnded, setIsChatEnded] = useState(false);
+  const messagesEndRef = useRef(null);
+  const navigate = useNavigate();
 
   const handleChat = async () => {
+    setLoading(true);
+    setUserMessage("");
+
+    const userMessageTrimmed = userMessage.trim();
+    setChatMessages((prev) => [
+      ...prev,
+      { id: prev.length + 10, role: "user", content: userMessageTrimmed },
+      { id: prev.length + 11, role: "ai", content: "", loading: true },
+    ]);
+
     console.log("Chat sent");
-    const authToken = localStorage.getItem("access_token");
     const sendMessage = await fetch("http://localhost:8000/api/chat/message/", {
       method: "POST",
       headers: {
         Authorization: `Bearer ${authToken}`,
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ chat_id: activeChat, content: userMessage }),
+      body: JSON.stringify({
+        chat_id: activeChat,
+        content: userMessageTrimmed,
+      }),
     });
+
     if (sendMessage.ok) {
       const data = await sendMessage.json();
       console.log(data);
-      setUserMessage("");
-      setChatMessages((prev) => [...prev, ...data.data]);
+      // setChatMessages((prev) => );
+      setChatMessages([...chatMessages, ...data.data]);
     } else {
       alert("unable to send message");
+      setUserMessage(userMessageTrimmed);
       console.error("Error sending message");
     }
+    setLoading(false);
   };
 
   const fetchChatSessions = async () => {
-    const authToken = localStorage.getItem("access_token");
+    // const authToken = localStorage.getItem("access_token");
     const response = await fetch("http://localhost:8000/api/chat/session", {
       method: "GET",
       headers: {
@@ -136,6 +75,18 @@ const ChatPage = () => {
         "Content-Type": "application/json",
       },
     });
+    if (response.status === 401) {
+      const tokenGenerated = await generateToken();
+      if (tokenGenerated) {
+        console.log("Retrying to send message after token refresh...");
+        return handleChat(); // Retry sending the message
+      } else {
+        navigate("/logout");
+        alert("Session expired. Please log in again.");
+        setLoading(false);
+        return;
+      }
+    }
     if (response.ok) {
       const data = await response.json();
       console.log(data);
@@ -147,7 +98,7 @@ const ChatPage = () => {
   };
 
   const fetchChatMessages = async (sessionId) => {
-    const authToken = localStorage.getItem("access_token");
+    // const authToken = localStorage.getItem("access_token");
     const response = await fetch(
       `http://localhost:8000/api/chat/message/?session=${sessionId}`,
       {
@@ -166,15 +117,76 @@ const ChatPage = () => {
       console.error("Error fetching chat messages");
     }
   };
+  const handleNewSession = async () => {
+    const response = await fetch("http://localhost:8000/api/chat/session/", {
+      method: "POST",
+      headers: {
+        Authorization: `Bearer ${authToken}`,
+        "Content-Type": "application/json",
+      },
+    });
+    if (response.ok) {
+      const data = await response.json();
+      console.log("This is active chat POST response ", data);
+      setChatSessions((prev) => [data.data, ...prev]);
+    } else {
+      let data = null;
+      try {
+        data = await response.json();
+      } catch (error) {
+        console.log("Error parsing JSON response: ", error);
+        data = { message: "Unable to create new chat session" };
+      }
+      alert(data.message);
+      console.error("Error posting chat sessions ", response);
+    }
+  };
 
-  const handleSessionClick = async () => {
-    fetchChatMessages(activeChat);
+  const handleSessionClick = async (activeSession) => {
+    setActiveChat(activeSession.id);
+    fetchChatMessages(activeSession.id);
+    setIsChatEnded(activeSession.status === "completed" ? true : false);
+  };
+
+  const handleChatEnd = async () => {
+    setLoading(true);
+    setUserMessage("");
+
+    console.log("Chat sent");
+    const sendMessage = await fetch(
+      "http://localhost:8000/api/chat/session/end",
+      {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${authToken}`,
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          chat_session_id: activeChat,
+        }),
+      }
+    );
+
+    if (sendMessage.ok) {
+      const data = await sendMessage.json();
+      console.log("chat end response ------------ ", data);
+      setIsChatEnded(true);
+      // setChatMessages((prev) => );
+    } else {
+      alert("unable to send message");
+      console.error("Error sending message");
+    }
+    setLoading(false);
   };
 
   useEffect(() => {
     fetchChatSessions();
     // fetchChatMessages(activeChat);
   }, []);
+  useEffect(() => {
+    console.log("scrolling into view", messagesEndRef);
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  }, [chatMessages]);
 
   return (
     <div className="flex h-screen bg-gray-100">
@@ -190,7 +202,10 @@ const ChatPage = () => {
         </div>
 
         {/* New Chat Button */}
-        <button className="flex items-center justify-center w-full px-4 py-3 mb-6 text-sm font-semibold rounded-lg text-gray-900 bg-indigo-500 hover:bg-indigo-400 transition duration-200 shadow-md">
+        <button
+          onClick={handleNewSession}
+          className="flex items-center justify-center w-full px-4 py-3 mb-6 text-sm font-semibold rounded-lg text-gray-900 bg-indigo-500 hover:bg-indigo-400 transition duration-200 shadow-md"
+        >
           <Plus className="w-4 h-4 mr-2" />
           New Chat
         </button>
@@ -201,7 +216,7 @@ const ChatPage = () => {
           {chatSessions.map((chat) => (
             <button
               key={chat.id}
-              onClick={handleSessionClick}
+              onClick={() => handleSessionClick(chat)}
               className={`flex items-center px-3 py-2 text-sm rounded-lg truncate transition duration-150 ${
                 chat.id === activeChat
                   ? "bg-gray-800 text-indigo-400 font-semibold"
@@ -242,6 +257,16 @@ const ChatPage = () => {
         {/* Conversation Thread */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-8 space-y-6">
           <div className="max-w-4xl mx-auto">
+            {chatMessages.length === 0 && (
+              <div className="text-center text-gray-500 mt-20">
+                <p className="mb-4">No messages yet. Start the conversation!</p>
+                <Bot className="w-12 h-12 mx-auto text-indigo-600 mb-4" />
+                <p className="text-sm">
+                  Type your message in the input box below and hit Enter to chat
+                  with ChatAI.
+                </p>
+              </div>
+            )}
             {chatMessages.map((message) => (
               <div
                 key={message.id}
@@ -263,32 +288,90 @@ const ChatPage = () => {
                       <Bot className="w-6 h-6 text-indigo-600" />
                     )}
                   </div>
-                  <p className="text-sm leading-relaxed whitespace-pre-wrap">
-                    {message.content}
-                  </p>
+                  {message?.loading ? (
+                    <p>
+                      <span className="animate-pulse">ChatAI is typing...</span>
+                    </p>
+                  ) : (
+                    <p className="text-sm leading-relaxed whitespace-pre-wrap">
+                      <ReactMarkdown>{message.content}</ReactMarkdown>
+                    </p>
+                  )}
                 </div>
               </div>
             ))}
+            <div
+              className="w-full  flex justify-center items-center "
+              ref={messagesEndRef}
+            >
+              {chatMessages && chatMessages.length > 0 && !isChatEnded && (
+                <button
+                  onClick={handleChatEnd}
+                  className="p-2 rounded-2xl text-white bg-indigo-800 border border-violet-400 w-fit text-[12px] cursor-pointer"
+                >
+                  END CHAT
+                </button>
+              )}
+            </div>
           </div>
         </div>
 
         {/* 3. Input Area */}
-        <div className="p-4 sm:p-6 border-t bg-white">
+        <div className="p-4 sm:p-6 border-t bg-white ">
           <div className="max-w-4xl mx-auto flex items-end bg-gray-50 rounded-xl border border-gray-300 shadow-lg">
-            <textarea
-              value={userMessage}
-              onChange={(e) => setUserMessage(e.target.value)}
-              className="grow p-4 resize-none bg-transparent focus:outline-none text-gray-800 placeholder-gray-500 text-base"
-              rows="1"
-              placeholder="Message ChatAI..."
-              style={{ minHeight: "52px" }} // Ensures minimum height even on one row
-            />
-            <button
-              onClick={handleChat}
-              className="shrink-0 m-2 p-3 rounded-xl bg-indigo-600 text-white hover:bg-indigo-700 transition duration-300"
-            >
-              <Send className="w-5 h-5" />
-            </button>
+            {isChatEnded ? (
+              <div className="w-full p-4 text-center text-gray-500 flex flex-col justify-center items-center gap-5">
+                <p className="h-[120px] overflow-auto">
+                  {chatSessions.find((c) => c.id === activeChat)
+                    ?.stream_summary || ""}
+                  This chat has ended. Please start a new chat to continue the
+                  conversation. This chat has ended. Please start a new chat to
+                  continue the conversation. This chat has ended. Please start a
+                  new chat to continue the conversation. This chat has ended.
+                  Please start a new chat to continue the conversation. This
+                  chat has ended. Please start a new chat to continue the
+                  conversation. This chat has ended. Please start a new chat to
+                  continue the conversation. This chat has ended. Please start a
+                  new chat to continue the conversation.
+                </p>
+                <p className="text-white bg-red-500 w-fit rounded-xl p-1  text-base">
+                  This chat has ended. Please start a new chat to continue the
+                  conversation.
+                </p>
+              </div>
+            ) : (
+              <>
+                <textarea
+                  value={userMessage}
+                  onChange={(e) => setUserMessage(e.target.value)}
+                  onKeyDown={(e) => {
+                    if (e.key === "Enter" && !e.shiftKey) {
+                      e.preventDefault();
+                      if (!loading && userMessage.trim() !== "") {
+                        handleChat();
+                      }
+                    }
+                  }}
+                  className="grow p-4 resize-none bg-transparent focus:outline-none text-gray-800 placeholder-gray-500 text-base"
+                  rows="1"
+                  placeholder="Message ChatAI..."
+                  style={{ minHeight: "52px" }} // Ensures minimum height even on one row
+                  disabled={loading}
+                />
+                <button
+                  disabled={loading || userMessage.trim() === ""}
+                  onClick={handleChat}
+                  className={
+                    (loading || userMessage.trim() === ""
+                      ? "bg-gray-400"
+                      : "bg-indigo-600 hover:bg-indigo-700 ") +
+                    " shrink-0 m-2 p-3 rounded-xl  text-white transition duration-300 "
+                  }
+                >
+                  <Send className="w-5 h-5" />
+                </button>
+              </>
+            )}
           </div>
           <p className="text-center text-xs text-gray-500 mt-2">
             ChatAI can make mistakes. Consider checking important information.

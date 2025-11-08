@@ -4,15 +4,17 @@ from accounts.models import CustomUser
 
 class ChatSession(models.Model):
     user = models.ForeignKey(CustomUser, on_delete=models.CASCADE)
-    stream_name = models.TextField()
-    stream_summary = models.TextField()
-    status = models.CharField(max_length=50)  # e.g., "active", "completed"
+    stream_name = models.TextField(default="New Chat")
+    stream_summary = models.TextField(default="", blank=True)
+    status = models.CharField(
+        max_length=50, default="active"
+    )  # e.g., "active", "completed"
 
     created_at = models.DateTimeField(auto_now_add=True)
     ended_at = models.DateTimeField(default=None, null=True, blank=True)
 
     def __str__(self):
-        return f"Stream for Chat ID {self.chat.id} at {self.timestamp}"
+        return f"Stream for Chat ID {self.id} at {self.created_at}"
 
 
 class Chats(models.Model):
@@ -29,4 +31,4 @@ class Chats(models.Model):
     )
 
     def __str__(self):
-        return f"Chat by {self.user.username} at {self.timestamp}"
+        return f"Chat by {self.chat.user.username} at {self.created_at}"

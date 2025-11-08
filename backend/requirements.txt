@@ -5,3 +5,8 @@ djangorestframework-simplejwt
 django-cors-headers
 google-genai
 google-generativeai
+langchain-community
+langchain
+langchain-core
+sentence_transformers
+chromadb

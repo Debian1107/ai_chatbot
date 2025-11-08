@@ -11,6 +11,7 @@ import HomePage from "./pages/HomePage";
 import ChatPage from "./pages/Chat";
 import ProtectedRoute from "./components/ProtectedRoute";
 import PublicRouteGuard from "./components/PublicRouteGuard"; // <-- NEW IMPORT
+import LogoutPage from "./pages/LogoutPage";
 
 // Define the updated route configuration
 const router = createBrowserRouter([
@@ -47,6 +48,10 @@ const router = createBrowserRouter([
         element: <ChatPage />,
       },
     ],
+  },
+  {
+    path: "/logout",
+    element: <LogoutPage />,
   },
 
   // Fallback for 404
