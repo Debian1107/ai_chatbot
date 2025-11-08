@@ -1,0 +1,576 @@
+openapi: 3.0.3
+info:
+  title: AI Chatbot API
+  description: |
+    REST API for the AI Chatbot application with RAG-powered conversations.
+    This API provides endpoints for user authentication, chat session management,
+    and message handling with AI-generated responses.
+  version: 1.0.0
+  contact:
+    name: API Support
+    email: support@example.com
+
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://api.example.com
+    description: Production server
+
+tags:
+  - name: Authentication
+    description: User registration, login, and token management
+  - name: Chat
+    description: Chat sessions and message management
+
+paths:
+  /api/auth/register/:
+    post:
+      tags:
+        - Authentication
+      summary: Register a new user
+      description: Creates a new user account with the provided credentials
+      operationId: registerUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/RegisterRequest'
+            example:
+              username: johndoe
+              email: john@example.com
+              password: SecurePass123
+              password2: SecurePass123
+              bio: Software developer
+      responses:
+        '201':
+          description: User created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/SuccessResponse'
+              example:
+                message: User created successfully
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/auth/login/:
+    post:
+      tags:
+        - Authentication
+      summary: User login
+      description: Authenticates a user and returns JWT tokens
+      operationId: loginUser
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+            example:
+              username: johndoe
+              password: SecurePass123
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/LoginResponse'
+              example:
+                refresh: eyJ0eXAiOiJKV1QiLCJhbGc...
+                access: eyJ0eXAiOiJKV1QiLCJhbGc...
+                user:
+                  id: 1
+                  username: johndoe
+                  email: john@example.com
+                  bio: Software developer
+        '401':
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+              example:
+                error: Invalid credentials
+
+  /api/auth/token/:
+    post:
+      tags:
+        - Authentication
+      summary: Refresh access token
+      description: Generates a new access token using a refresh token
+      operationId: refreshToken
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                refresh:
+                  type: string
+                  description: Refresh token
+              required:
+                - refresh
+            example:
+              refresh: eyJ0eXAiOiJKV1QiLCJhbGc...
+      responses:
+        '200':
+          description: Token refreshed successfully
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  access:
+                    type: string
+              example:
+                access: eyJ0eXAiOiJKV1QiLCJhbGc...
+
+  /api/auth/profile/:
+    get:
+      tags:
+        - Authentication
+      summary: Get user profile
+      description: Returns the authenticated user's profile information
+      operationId: getProfile
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: User profile
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/User'
+              example:
+                id: 1
+                username: johndoe
+                email: john@example.com
+                bio: Software developer
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/chat/session/:
+    get:
+      tags:
+        - Chat
+      summary: Get all chat sessions
+      description: Returns all chat sessions for the authenticated user
+      operationId: getChatSessions
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: List of chat sessions
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSessionListResponse'
+              example:
+                success: true
+                data:
+                  - id: 1
+                    stream_name: Quantum Computing Explained
+                    stream_summary: ""
+                    status: active
+                    created_at: "2024-01-15T10:30:00Z"
+                    ended_at: null
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Chat
+      summary: Create a new chat session
+      description: Creates a new chat session for the authenticated user
+      operationId: createChatSession
+      security:
+        - BearerAuth: []
+      responses:
+        '201':
+          description: Chat session created successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ChatSessionResponse'
+              example:
+                success: true
+                data:
+                  id: 2
+                  stream_name: New Chat
+                  stream_summary: ""
+                  status: active
+                  created_at: "2024-01-15T11:00:00Z"
+                  ended_at: null
+        '400':
+          description: Validation error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/chat/message/:
+    get:
+      tags:
+        - Chat
+      summary: Get messages for a chat session
+      description: Returns all messages for a specific chat session
+      operationId: getMessages
+      security:
+        - BearerAuth: []
+      parameters:
+        - name: session
+          in: query
+          required: true
+          description: Chat session ID
+          schema:
+            type: integer
+          example: 1
+      responses:
+        '200':
+          description: List of messages
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+              example:
+                success: true
+                data:
+                  - id: 1
+                    role: user
+                    content: What is quantum computing?
+                    created_at: "2024-01-15T10:31:00Z"
+                    chat: 1
+                  - id: 2
+                    role: assistant
+                    content: Quantum computing is a type of computation...
+                    created_at: "2024-01-15T10:31:05Z"
+                    chat: 1
+        '404':
+          description: Chat session not found
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+    post:
+      tags:
+        - Chat
+      summary: Send a message
+      description: Sends a message in a chat session and returns the user message and AI response
+      operationId: sendMessage
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/MessageRequest'
+            example:
+              chat_id: 1
+              content: How does quantum entanglement work?
+      responses:
+        '200':
+          description: Message sent successfully
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/MessageListResponse'
+              example:
+                success: true
+                data:
+                  - id: 3
+                    chat_id: 1
+                    role: user
+                    content: How does quantum entanglement work?
+                    created_at: "2024-01-15T10:32:00Z"
+                  - id: 4
+                    chat_id: 1
+                    role: assistant
+                    content: Quantum entanglement is a phenomenon where...
+                    created_at: "2024-01-15T10:32:03Z"
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+  /api/chat/session/end:
+    post:
+      tags:
+        - Chat
+      summary: End a chat session
+      description: Marks a chat session as completed and generates an AI summary
+      operationId: endChatSession
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                chat_session_id:
+                  type: integer
+                  description: Chat session ID to end
+              required:
+                - chat_session_id
+            example:
+              chat_session_id: 1
+      responses:
+        '202':
+          description: Summary generation started
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                  msg:
+                    type: string
+              example:
+                success: true
+                msg: Summary generation started.
+        '400':
+          description: Bad request
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+        '401':
+          description: Unauthorized
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ErrorResponse'
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+      description: JWT token obtained from login endpoint
+
+  schemas:
+    RegisterRequest:
+      type: object
+      required:
+        - username
+        - email
+        - password
+        - password2
+      properties:
+        username:
+          type: string
+          minLength: 3
+          maxLength: 150
+          example: johndoe
+        email:
+          type: string
+          format: email
+          example: john@example.com
+        password:
+          type: string
+          minLength: 8
+          example: SecurePass123
+        password2:
+          type: string
+          description: Password confirmation
+          example: SecurePass123
+        bio:
+          type: string
+          maxLength: 500
+          example: Software developer
+
+    LoginRequest:
+      type: object
+      required:
+        - username
+        - password
+      properties:
+        username:
+          type: string
+          example: johndoe
+        password:
+          type: string
+          example: SecurePass123
+
+    LoginResponse:
+      type: object
+      properties:
+        refresh:
+          type: string
+          description: Refresh token for obtaining new access tokens
+        access:
+          type: string
+          description: Access token for API authentication
+        user:
+          $ref: '#/components/schemas/User'
+
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        username:
+          type: string
+        email:
+          type: string
+          format: email
+        bio:
+          type: string
+          nullable: true
+
+    ChatSession:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        stream_name:
+          type: string
+          description: Name/title of the chat session
+        stream_summary:
+          type: string
+          description: AI-generated summary of the conversation
+        status:
+          type: string
+          enum:
+            - active
+            - completed
+          default: active
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        ended_at:
+          type: string
+          format: date-time
+          nullable: true
+
+    ChatSessionResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          $ref: '#/components/schemas/ChatSession'
+
+    ChatSessionListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/ChatSession'
+
+    Message:
+      type: object
+      properties:
+        id:
+          type: integer
+          readOnly: true
+        role:
+          type: string
+          enum:
+            - user
+            - assistant
+          description: Message sender role
+        content:
+          type: string
+          description: Message content
+        created_at:
+          type: string
+          format: date-time
+          readOnly: true
+        chat:
+          type: integer
+          description: Chat session ID
+          readOnly: true
+
+    MessageRequest:
+      type: object
+      required:
+        - chat_id
+        - content
+      properties:
+        chat_id:
+          type: integer
+          description: Chat session ID
+        content:
+          type: string
+          description: Message content
+          minLength: 1
+
+    MessageListResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+        data:
+          type: array
+          items:
+            $ref: '#/components/schemas/Message'
+
+    SuccessResponse:
+      type: object
+      properties:
+        message:
+          type: string
+
+    ErrorResponse:
+      type: object
+      properties:
+        success:
+          type: boolean
+          default: false
+        message:
+          type: string
+          description: Error message
+        errors:
+          type: object
+          description: Detailed validation errors
+        error:
+          type: string
+          description: Error message (alternative field)
+

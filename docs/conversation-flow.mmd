@@ -1,0 +1,25 @@
+sequenceDiagram
+    participant User
+    participant Frontend
+    participant Backend
+    participant PostgreSQL
+    participant ChromaDB
+    participant Gemini
+
+    User->>Frontend: Send Message
+    Frontend->>Backend: POST /api/chat/message/
+    Backend->>Backend: Validate JWT Token
+    Backend->>PostgreSQL: Save User Message
+    Backend->>PostgreSQL: Retrieve Chat History
+    Backend->>ChromaDB: Build/Load Vector DB
+    Backend->>ChromaDB: Generate Embeddings
+    Backend->>ChromaDB: Store Documents
+    Backend->>ChromaDB: Semantic Search (k=8)
+    ChromaDB-->>Backend: Return Relevant Context
+    Backend->>Backend: Build Prompt with Context
+    Backend->>Gemini: Generate AI Response
+    Gemini-->>Backend: Return Response Text
+    Backend->>PostgreSQL: Save AI Response
+    Backend-->>Frontend: Return Messages
+    Frontend-->>User: Display Response
+

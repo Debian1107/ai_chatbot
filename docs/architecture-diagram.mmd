@@ -1,0 +1,41 @@
+graph TB
+    subgraph "Frontend Layer"
+        A[React Frontend<br/>Port 3000]
+        A1[HomePage]
+        A2[LoginPage]
+        A3[ChatPage]
+        A --> A1
+        A --> A2
+        A --> A3
+    end
+
+    subgraph "API Layer"
+        B[Django REST Framework<br/>Port 8000]
+        B1[Accounts App<br/>Authentication]
+        B2[Chat App<br/>Conversations]
+        B3[RAG Bot Module<br/>Vector Search]
+        B --> B1
+        B --> B2
+        B --> B3
+    end
+
+    subgraph "Data Layer"
+        C[PostgreSQL<br/>Relational Data]
+        D[ChromaDB<br/>Vector Store]
+        E[Gemini API<br/>AI Model]
+    end
+
+    A -->|HTTP/REST| B
+    B1 -->|User Data| C
+    B2 -->|Chat Data| C
+    B2 -->|Retrieve Context| B3
+    B3 -->|Store Embeddings| D
+    B3 -->|Query Vectors| D
+    B2 -->|Generate Response| E
+
+    style A fill:#4F46E5,stroke:#312E81,color:#fff
+    style B fill:#10B981,stroke:#047857,color:#fff
+    style C fill:#3B82F6,stroke:#1E40AF,color:#fff
+    style D fill:#8B5CF6,stroke:#5B21B6,color:#fff
+    style E fill:#F59E0B,stroke:#92400E,color:#fff
+

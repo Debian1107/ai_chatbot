@@ -79,7 +79,7 @@ const ChatPage = () => {
       const tokenGenerated = await generateToken();
       if (tokenGenerated) {
         console.log("Retrying to send message after token refresh...");
-        return handleChat(); // Retry sending the message
+        window.location.reload();
       } else {
         navigate("/logout");
         alert("Session expired. Please log in again.");
